@@ -1,4 +1,3 @@
-
 name: iOS Build
 
 on:
@@ -32,3 +31,27 @@ jobs:
                       -sdk iphonesimulator \
                       -destination 'platform=iOS Simulator,name=iPhone 15' \
                       clean build
+
+      - name: Run Tests
+        run: |
+          xcodebuild -project CicdSampleApp.xcodeproj \
+                      -scheme CicdSampleApp \
+                      -sdk iphonesimulator \
+                      -destination 'platform=iOS Simulator,name=iPhone 15' \
+                      test
+
+      - name: Analyze Errors
+        run: |
+          echo "Analyzing build and test logs for errors..."
+          
+          # Example: Check for nil or optional unwrapping errors in build output
+          if grep -q "fatal error: unexpectedly found nil" build.log; then
+            echo "Error: Nil or optional unwrapping issue detected in build."
+            exit 1  # Exit with failure status to mark the workflow as failed
+          fi
+          
+          # Example: Check for specific test failures related to nil or optional unwrapping
+          if grep -q "Assertion failed: expected non-nil value" test.log; then
+            echo "Error: Test failure due to nil or optional unwrapping issue."
+            exit 1  # Exit with failure status to mark the workflow as failed
+          fi
